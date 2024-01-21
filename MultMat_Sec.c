@@ -6,10 +6,10 @@
 #include <stdlib.h>
 #include <math.h>
 #include <time.h>
-#include "Strassens_MultMat.h"
-#include "Standard_MultMat.h"
-#include "Matrix.h"
-#include "Errors.h"
+#include "Strassens_MultMat.c"
+#include "Standard_MultMat.c"
+#include "Matrix.c"
+#include "Errors.c"
 
 // Constants
 #define DEBUG 0
