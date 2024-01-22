@@ -13,20 +13,21 @@ double elapsed_std;
 static float ** result;
 pthread_mutex_t mutex;
 
-
 /*
 * Standard Matrix multiplication with O(n^3) time complexity.
 */
 float ** standardMultiplication(float ** matrixA,float ** matrixB,int n,int t)
 {
     //return standardMultiplication_ijk(matrixA,matrixB,n);
-    return concurrent_standardMultiplication_ikj(matrixA,matrixB,n,t);
+    concurrent_standardMultiplication_ikj(matrixA,matrixB,n,t);
+
+    return result;
 }
 
 /*
 * Threads distribution for standard ikj Matrix.
 */
-float ** concurrent_standardMultiplication_ikj(float ** matrixA,float ** matrixB,int n,int t)
+void * concurrent_standardMultiplication_ikj(float ** matrixA,float ** matrixB,int n,int t)
 {
     int i,k,j,spare,last_i = 0,last_j = 0;
     struct timespec start, finish;
@@ -55,9 +56,8 @@ float ** concurrent_standardMultiplication_ikj(float ** matrixA,float ** matrixB
 
     k = (n*n / t);
     spare = n*n - k*t;
-    printf("n: %d, t: %d, result: %d, spare: %d\n",n,t,k,spare);
 
-    float ** _return = standardMultiplication_ikj(&(args[0]));
+    float ** _return;
 
     for(i = 0; i < t; i++) {
         args[i].matrixA = matrixA;
@@ -73,20 +73,20 @@ float ** concurrent_standardMultiplication_ikj(float ** matrixA,float ** matrixB
         }
         
         // Update last position
-        last_i += args[i].cells_n;
-        while(last_i >= n) {
-            last_i = 0;
-            last_j++;
+        last_j += args[i].cells_n;
+        while(last_j >= n) {
+            last_j -= n;
+            last_i++;
         }
 
-        if (_return = pthread_create(&threads[i], NULL, standardMultiplication_ikj, &(args[i])) != 0) {
+        if (pthread_create(&threads[i], NULL, standardMultiplication_ikj, &(args[i])) != 0) {
             Error("[Standard]: pthread creation error\n\n");
         }
     }
     
-    //float ** _return = standardMultiplication_ikj(&(args[0]));
+    // Joins
+
     clock_gettime(CLOCK_MONOTONIC, &finish);
-    return _return;
 }
 
 /*
@@ -127,7 +127,6 @@ float ** standardMultiplication_ikj(PtrArgs args)
     float ** matrixB = args -> matrixB;
     int n = args -> n, i = args -> i, j = args -> j, cells_n = args -> cells_n;
 
-
     struct timespec start, finish;
     int k,cells_calc = 0;
 
@@ -135,7 +134,6 @@ float ** standardMultiplication_ikj(PtrArgs args)
     {
         for(k=0;k<n;k++) {
             pthread_mutex_lock(&mutex);
-            printf("i: %d, j: %d, k: %d", i, j, k);
             result[i][j]=result[i][j]+(matrixA[i][k]*matrixB[k][j]);
             pthread_mutex_unlock(&mutex);
         }

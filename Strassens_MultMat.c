@@ -14,7 +14,7 @@ int Dim2StopRecursivity = 10;
 /*
 * Wrapper function over strassensMultRec.
 */
-float ** strassensMultiplication(float ** matrixA, float** matrixB,int n)
+float ** strassensMultiplication(float ** matrixA, float** matrixB,int n,int t)
 {
     struct timespec start, finish;
     clock_gettime(CLOCK_MONOTONIC, &start);

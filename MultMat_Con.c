@@ -125,14 +125,14 @@ int main(int argc, char ** argv)
     printMessage(debug_msg,COLOR_CYAN_B);
 
 
-    /*float ** strassensRes = strassensMultiplication(matrixA,matrixB,n);
+    float ** strassensRes = strassensMultiplication(matrixA,matrixB,n,threads);
     if (n<10) {
         print("Strassen's Multiplication Result:\n");
         printMatrix(strassensRes, n);
     }
     saveMatrix(str_result_matrix_name, strassensRes, n);
     sprintf(debug_msg,"[Strassen Mult] Multiplication time: %05.6f.\n",elapsed_str);
-    printMessage(debug_msg,COLOR_CYAN_B);*/
+    printMessage(debug_msg,COLOR_CYAN_B);
 
     return 0;
 }
