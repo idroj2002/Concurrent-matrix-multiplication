@@ -8,13 +8,13 @@
 
 extern double elapsed_str;
 
-extern struct ThreadArgs {
+extern struct StrassensArgs {
     float ** matrixA;
     float ** matrixB;
     int n;
     float ** result;
 };
-typedef struct ThreadArgs ThreadArgs,*PtrArgs;
+typedef struct StrassensArgs StrassensArgs,*PtrStrassensArgs;
 
 // Functions Prototypes
 float** strassensMultiplication(float **, float **,int,int);

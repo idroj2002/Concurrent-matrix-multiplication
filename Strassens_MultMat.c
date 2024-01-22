@@ -61,7 +61,7 @@ void * strassensMultRec(float ** matrixA, float** matrixB,int n,float** finalRes
 
         //Create threads
         pthread_t threads[currentAvailableThreads];
-        ThreadArgs args[currentAvailableThreads];
+        PtrStrassensArgs args[currentAvailableThreads];
 
         //Divide the matrix
         args[0];
@@ -109,11 +109,11 @@ void * strassensMultRec(float ** matrixA, float** matrixB,int n,float** finalRes
     finalResult = result;
 }
 
-void executeThread(PtrArgs args) {
-    allArgs = args -> args; // Array amb estructures Ex: [str1, str2, str3, ... , strN]
-
-
-
+void * executeThread(PtrStrassensArgs * args) {
+    for (int i = 0; i < lengt(args); i++)
+    {
+        strassensMultRec(args[i]->matrixA, args[i]->matrixB, args[i]->n, args[i]->result);
+    }
 }
 
 /*
