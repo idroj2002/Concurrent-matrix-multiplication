@@ -11,7 +11,6 @@
 
 double elapsed_str;
 int Dim2StopRecursivity = 10;
-static float ** result;
 static int availableThreads;
 pthread_mutex_t mutex;
 
@@ -28,6 +27,7 @@ float ** strassensMultiplication(float ** matrixA, float** matrixB,int n,int t)
     if (n>32)
         Dim2StopRecursivity = n/16;
 
+    float ** result = createZeroMatrix(n);
     strassensMultRec(matrixA,matrixB,n,result);
 
     clock_gettime(CLOCK_MONOTONIC, &finish);
@@ -41,7 +41,6 @@ float ** strassensMultiplication(float ** matrixA, float** matrixB,int n,int t)
 * Strassen's Multiplication algorithm using Divide and Conquer technique.
 */
 void * strassensMultRec(float ** matrixA, float** matrixB,int n,float** finalResult){
-    float ** result = createZeroMatrix(n);
     if(n>Dim2StopRecursivity) {
         //Consult available threads
         int i, j, k, spare;
@@ -178,23 +177,21 @@ void * strassensMultRec(float ** matrixA, float** matrixB,int n,float** finalRes
         free(p2); free(p7); free(p6);
 
         //Compose the matrix
-        compose(c11,result,0,0,n/2);
-        compose(c12,result,0,n/2,n/2);
-        compose(c21,result,n/2,0,n/2);
-        compose(c22,result,n/2,n/2,n/2);
+        compose(c11,finalResult,0,0,n/2);
+        compose(c12,finalResult,0,n/2,n/2);
+        compose(c21,finalResult,n/2,0,n/2);
+        compose(c22,finalResult,n/2,n/2,n/2);
 
         free(c11); free(c12); free(c21); free(c22);
     }
     else {
         //This is the terminating condition for recurssion.
         //result[0][0]=matrixA[0][0]*matrixB[0][0];
-        result = standardMultiplication(matrixA,matrixB, n, 1);
+        finalResult = standardMultiplication(matrixA,matrixB, n, 1);
     }
-
-    finalResult = result;
 }
 
-void * executeThread(PtrStrassensArgs args[]) {
+void * executeThread(PtrStrassensArgs * args) {
     int length;
     length = sizeof(args) / sizeof(args[0]);
     for (int i = 0; i < length; i++)
