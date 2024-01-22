@@ -85,6 +85,7 @@ void * strassensMultRec(float ** matrixA, float** matrixB,int n,float** finalRes
         float** p6 = strassensMultRec(subMatrix(a12,a22,n/2),addMatrix(b21,b22,n/2),n/2);
         float** p7 = strassensMultRec(subMatrix(a21,a11,n/2),addMatrix(b11,b12,n/2),n/2);
         */
+
         //p1
         float ** p1 = createZeroMatrix(n/2);
         args[0].matrixA = a11;
@@ -166,9 +167,6 @@ void * strassensMultRec(float ** matrixA, float** matrixB,int n,float** finalRes
         for (i = 0; i < currentAvailableThreads; i++)
         {
             pthread_join(threads[i], (void **) NULL);
-            pthread_mutex_lock(&mutex);
-            availableThreads++;
-            pthread_mutex_unlock(&mutex);
         }
         pthread_mutex_destroy(&mutex);
 
@@ -186,6 +184,10 @@ void * strassensMultRec(float ** matrixA, float** matrixB,int n,float** finalRes
         compose(c22,finalResult,n/2,n/2,n/2);
 
         free(c11); free(c12); free(c21); free(c22);
+        
+        pthread_mutex_lock(&mutex);
+        availableThreads++;
+        pthread_mutex_unlock(&mutex);
     }
     else {
         //This is the terminating condition for recurssion.
