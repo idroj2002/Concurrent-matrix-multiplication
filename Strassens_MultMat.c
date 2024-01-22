@@ -9,7 +9,9 @@
 
 double elapsed_str;
 int Dim2StopRecursivity = 10;
-
+static float ** result;
+static int availableThreads;
+pthread_mutex_t mutex;
 
 /*
 * Wrapper function over strassensMultRec.
@@ -18,11 +20,13 @@ float ** strassensMultiplication(float ** matrixA, float** matrixB,int n,int t)
 {
     struct timespec start, finish;
     clock_gettime(CLOCK_MONOTONIC, &start);
+    availableThreads = t - 1;
+    pthread_mutex_init(&mutex, NULL);
 
     if (n>32)
         Dim2StopRecursivity = n/16;
 
-    float ** result = strassensMultRec(matrixA,matrixB,n);
+    strassenMultRec(matrixA,matrixB,n,result);
 
     clock_gettime(CLOCK_MONOTONIC, &finish);
     elapsed_str = (finish.tv_sec - start.tv_sec);
@@ -34,9 +38,31 @@ float ** strassensMultiplication(float ** matrixA, float** matrixB,int n,int t)
 /*
 * Strassen's Multiplication algorithm using Divide and Conquer technique.
 */
-float** strassensMultRec(float ** matrixA, float** matrixB,int n){
+void * strassensMultRec(float ** matrixA, float** matrixB,int n,float** finalResult){
     float ** result = createZeroMatrix(n);
     if(n>Dim2StopRecursivity) {
+        //Consult available threads
+        int k, spare;
+        int currentAvailableThreads = 0;
+        pthread_mutex_lock(&mutex);
+        if (availableThreads > 6) {
+            currentAvailableThreads = 6;
+            availableThreads -= 6;
+        } else if (availableThreads > 0)
+        {
+            currentAvailableThreads = availableThreads;
+            availableThreads = 0;
+        }
+        pthread_mutex_unlock(&mutex);
+
+        //Calculate operations per thread
+        k = (7 / currentAvailableThreads);
+        spare = 7 - k*currentAvailableThreads;
+
+        //Create threads
+        pthread_t threads[currentAvailableThreads];
+        ThreadArgs args[currentAvailableThreads];
+
         //Divide the matrix
         float ** a11 = divide(matrixA, n, 0, 0);
         float ** a12 = divide(matrixA, n, 0, (n/2));
@@ -48,22 +74,22 @@ float** strassensMultRec(float ** matrixA, float** matrixB,int n){
         float ** b22 = divide(matrixB, n, n/2, n/2);
 
         //Recursive call for Divide and Conquer
-        float** m1= strassensMultRec(addMatrix(a11,a22,n/2),addMatrix(b11,b22,n/2),n/2);
-        float** m2= strassensMultRec(addMatrix(a21,a22,n/2),b11,n/2);
-        float** m3= strassensMultRec(a11,subMatrix(b12,b22,n/2),n/2);
-        float** m4= strassensMultRec(a22,subMatrix(b21,b11,n/2),n/2);
-        float** m5= strassensMultRec(addMatrix(a11,a12,n/2),b22,n/2);
-        float** m6= strassensMultRec(subMatrix(a21,a11,n/2),addMatrix(b11,b12,n/2),n/2);
-        float** m7= strassensMultRec(subMatrix(a12,a22,n/2),addMatrix(b21,b22,n/2),n/2);
+        float** p1 = strassensMultRec(a11,subMatrix(b12,b22,n/2),n/2);
+        float** p2 = strassensMultRec(addMatrix(a11,a12,n/2),b22,n/2);
+        float** p3 = strassensMultRec(addMatrix(a21,a22,n/2),b11,n/2);
+        float** p4 = strassensMultRec(a22,subMatrix(b21,b11,n/2),n/2);
+        float** p5 = strassensMultRec(addMatrix(a11,a22,n/2),addMatrix(b11,b22,n/2),n/2);
+        float** p6 = strassensMultRec(subMatrix(a12,a22,n/2),addMatrix(b21,b22,n/2),n/2);
+        float** p7 = strassensMultRec(subMatrix(a21,a11,n/2),addMatrix(b11,b12,n/2),n/2);
         free(a11); free(a12); free(a21); free(a22);
         free(b11); free(b12); free(b21); free(b22);
 
-        float** c11 = addMatrix(subMatrix(addMatrix(m1,m4,n/2),m5,n/2),m7,n/2);
-        float** c12 = addMatrix(m3,m5,n/2);
-        float** c21 = addMatrix(m2,m4,n/2);
-        float** c22 = addMatrix(subMatrix(addMatrix(m1,m3,n/2),m2,n/2),m6,n/2);
-        free(m1); free(m2); free(m3); free(m4);
-        free(m5); free(m6); free(m7);
+        float** c11 = addMatrix(subMatrix(addMatrix(p5,p4,n/2),p2,n/2),p6,n/2);
+        float** c12 = addMatrix(p1,p2,n/2);
+        float** c21 = addMatrix(p3,p4,n/2);
+        float** c22 = addMatrix(subMatrix(addMatrix(p5,p1,n/2),p3,n/2),p7,n/2);
+        free(p5); free(p3); free(p1); free(p4);
+        free(p2); free(p7); free(p6);
 
         //Compose the matrix
         compose(c11,result,0,0,n/2);
@@ -78,7 +104,8 @@ float** strassensMultRec(float ** matrixA, float** matrixB,int n){
         //result[0][0]=matrixA[0][0]*matrixB[0][0];
         result = standardMultiplication(matrixA,matrixB, n, 1);
     }
-    return result;
+
+    finalResult = result;
 }
 
 /*

@@ -54,6 +54,7 @@ void * concurrent_standardMultiplication_ikj(float ** matrixA,float ** matrixB,i
         }
     }
 
+    //Calculate cells per thread
     k = (n*n / t);
     spare = n*n - k*t;
 
