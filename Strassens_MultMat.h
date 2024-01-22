@@ -11,7 +11,7 @@ extern double elapsed_str;
 
 // Functions Prototypes
 float** strassensMultiplication(float **, float **,int);
-float** standardMultiplication(float **,float **,int);
+float** standardMultiplication(float **,float **,int,int);
 float** strassensMultRec(float **, float**,int n);
 float** divide(float ** matrixA,int n, int row,int col);
 float ** addMatrix(float**,float**,int);

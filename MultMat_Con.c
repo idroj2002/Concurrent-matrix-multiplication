@@ -27,7 +27,7 @@ double elapsed;
 */
 int main(int argc, char ** argv)
 {
-    int n=0;
+    int n=0, threads=1;
     char random_matrixA_name[256], random_matrixB_name[256], std_result_matrix_name[256], str_result_matrix_name[256];
     char * matrixA_name, * matrixB_name;
     float **matrixA, **matrixB;
@@ -37,7 +37,7 @@ int main(int argc, char ** argv)
         sprintf(debug_msg,"[Main] Start Program with %d parameters.\n",argc);
         printMessage(debug_msg, COLOR_MAGENTA);
     }
-    if(argc==3)
+    if(argc==4)
     {
         n = atoi(argv[1]);
         if (n < 1)
@@ -63,8 +63,12 @@ int main(int argc, char ** argv)
         matrixB_name = random_matrixB_name;
         sprintf(std_result_matrix_name, "%s/%s/MatrixRes_%dx%d.txt.std", argv[2],results_folder, n, n);
         sprintf(str_result_matrix_name, "%s/%s/MatrixRes_%dx%d.txt.str", argv[2],results_folder, n, n);
+
+        threads = atoi(argv[3]);
+        if (threads < 1)
+            Error("[Main] Error: Invalid thread number!");
     }
-    else if(argc==4)
+    else if(argc==5)
     {
         int n1, n2;
         double int_part;
@@ -93,6 +97,10 @@ int main(int argc, char ** argv)
         matrixA_name = argv[2];
         sprintf(std_result_matrix_name, "%s.std", argv[3]);
         sprintf(str_result_matrix_name, "%s.str", argv[3]);
+
+        threads = atoi(argv[4]);
+        if (threads < 1)
+            Error("[Main] Error: Invalid thread number!");
     }
     else {
         printMessage(usage_msg,COLOR_RED);
@@ -107,7 +115,7 @@ int main(int argc, char ** argv)
         printMatrixC(matrixB, n, COLOR_GREEN_B);
     }
 
-    float ** stdRes = standardMultiplication(matrixA,matrixB,n);
+    float ** stdRes = standardMultiplication(matrixA,matrixB,n,threads);
     if (n<10) {
         print("Standard Multiplication Result:\n");
         printMatrix(stdRes, n);
@@ -117,14 +125,14 @@ int main(int argc, char ** argv)
     printMessage(debug_msg,COLOR_CYAN_B);
 
 
-    float ** strassensRes = strassensMultiplication(matrixA,matrixB,n);
+    /*float ** strassensRes = strassensMultiplication(matrixA,matrixB,n);
     if (n<10) {
         print("Strassen's Multiplication Result:\n");
         printMatrix(strassensRes, n);
     }
     saveMatrix(str_result_matrix_name, strassensRes, n);
     sprintf(debug_msg,"[Strassen Mult] Multiplication time: %05.6f.\n",elapsed_str);
-    printMessage(debug_msg,COLOR_CYAN_B);
+    printMessage(debug_msg,COLOR_CYAN_B);*/
 
     return 0;
 }
