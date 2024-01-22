@@ -124,7 +124,6 @@ int main(int argc, char ** argv)
     sprintf(debug_msg,"[Standard Mult] Multiplication time: %05.6f.\n",elapsed_std);
     printMessage(debug_msg,COLOR_CYAN_B);
 
-
     float ** strassensRes = strassensMultiplication(matrixA,matrixB,n,threads);
     if (n<10) {
         
