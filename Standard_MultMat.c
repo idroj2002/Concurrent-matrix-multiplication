@@ -34,11 +34,7 @@ void * concurrent_standardMultiplication_ikj(float ** matrixA,float ** matrixB,i
     pthread_t threads[t];
     StandardArgs args[t];
     pthread_mutex_init(&mutex, NULL);
-    result = (float**)malloc(n*sizeof(float *));
-    for(i;i<n;i++){
-        result[i]=(float*)malloc(n*sizeof(float));
-        memset(result[i],0,n*sizeof(float));
-    }
+    result = createZeroMatrix(n);
 
     clock_gettime(CLOCK_MONOTONIC, &start);
 
@@ -128,7 +124,6 @@ void * standardMultiplication_ikj(PtrStandardArgs args)
     {
         for(k=0;k<n;k++) {
             pthread_mutex_lock(&mutex);
-            printf("i: %d, j: %d, k: %d", i, j ,k);
             result[i][j]=result[i][j]+(matrixA[i][k]*matrixB[k][j]);
             pthread_mutex_unlock(&mutex);
         }
