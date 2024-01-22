@@ -122,7 +122,7 @@ void saveMatrix(char *outputFile, float ** matrix,int n)
 
     for(i=0;i<n;i++){
         for(j=0;j<n;j++){
-            fprintf(fileMatrix,"% 8.2f \t",matrix[i][j]);
+            printf(fileMatrix,"% 8.2f \t",matrix[i][j]);
         }
         if (i<(n-1))
             fprintf(fileMatrix,"\n");

@@ -10,8 +10,8 @@
 #include "Errors.h"
 
 double elapsed_std;
-
-float ** result;
+static float ** result;
+pthread_mutex_t mutex;
 
 
 /*
@@ -29,8 +29,15 @@ float ** standardMultiplication(float ** matrixA,float ** matrixB,int n,int t)
 float ** concurrent_standardMultiplication_ikj(float ** matrixA,float ** matrixB,int n,int t)
 {
     int i,k,j,spare,last_i = 0,last_j = 0;
+    struct timespec start, finish;
     pthread_t threads[t];
     ThreadArgs args[t];
+    pthread_mutex_init(&mutex, NULL);
+    result = (float**)malloc(n*sizeof(float *));
+    for(i;i<n;i++){
+        result[i]=(float*)malloc(n*sizeof(float));
+        memset(result[i],0,n*sizeof(float));
+    }
 
     clock_gettime(CLOCK_MONOTONIC, &start);
 
@@ -49,6 +56,8 @@ float ** concurrent_standardMultiplication_ikj(float ** matrixA,float ** matrixB
     k = (n*n / t);
     spare = n*n - k*t;
     printf("n: %d, t: %d, result: %d, spare: %d\n",n,t,k,spare);
+
+    float ** _return = standardMultiplication_ikj(&(args[0]));
 
     for(i = 0; i < t; i++) {
         args[i].matrixA = matrixA;
@@ -70,12 +79,14 @@ float ** concurrent_standardMultiplication_ikj(float ** matrixA,float ** matrixB
             last_j++;
         }
 
-        if (pthread_create(&threads[i], NULL, standardMultiplication_ikj, &(args[i])) != 0) {
+        if (_return = pthread_create(&threads[i], NULL, standardMultiplication_ikj, &(args[i])) != 0) {
             Error("[Standard]: pthread creation error\n\n");
         }
     }
-
-    return standardMultiplication_ikj(&(args[0]));
+    
+    //float ** _return = standardMultiplication_ikj(&(args[0]));
+    clock_gettime(CLOCK_MONOTONIC, &finish);
+    return _return;
 }
 
 /*
@@ -118,15 +129,15 @@ float ** standardMultiplication_ikj(PtrArgs args)
 
 
     struct timespec start, finish;
-    //int i,j,k;
-    int k,cells_calc;
+    int k,cells_calc = 0;
 
     while (cells_calc < cells_n)
     {
         for(k=0;k<n;k++) {
-            //mutex_lock
+            pthread_mutex_lock(&mutex);
+            printf("i: %d, j: %d, k: %d", i, j, k);
             result[i][j]=result[i][j]+(matrixA[i][k]*matrixB[k][j]);
-            //mutex_unlock
+            pthread_mutex_unlock(&mutex);
         }
         cells_calc++;
         if (j == n - 1)
@@ -138,7 +149,8 @@ float ** standardMultiplication_ikj(PtrArgs args)
         }
     }
     
-apsed_std += (finish.tv_nsec - start.tv_nsec) / 1000000000.0;
+    elapsed_std = (finish.tv_sec - start.tv_sec);
+    elapsed_std += (finish.tv_nsec - start.tv_nsec) / 1000000000.0;
 
     return result;
 }
