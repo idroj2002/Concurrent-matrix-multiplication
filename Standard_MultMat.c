@@ -50,16 +50,19 @@ float ** standardMultiplication_ijk(float ** matrixA,float ** matrixB,int n)
 /*
 * Standard ikj Matrix multiplication with O(n^3) time complexity.
 */
-float ** standardMultiplication_ikj(float ** matrixA,float ** matrixB,int n)
+float ** standardMultiplication_ikj(float ** matrixA,float ** matrixB,int n, int i, int j, int cells_n)
 {
     struct timespec start, finish;
     float ** result;
-    int i,j,k;
+    //int i,j,k;
+    int k,cells_calc;
 
     clock_gettime(CLOCK_MONOTONIC, &start);
 
-    result = (float**)malloc(n*sizeof(float *));
-    for(i=0;i<n;i++){
+    //result = (float**)malloc(n*sizeof(float *));
+
+
+    /*for(i;i<n;i++){
         result[i]=(float*)malloc(n*sizeof(float));
         memset(result[i],0,n*sizeof(float));
         for(k=0;k<n;k++) {
@@ -67,7 +70,25 @@ float ** standardMultiplication_ikj(float ** matrixA,float ** matrixB,int n)
                 result[i][j]=result[i][j]+(matrixA[i][k]*matrixB[k][j]);
             }
         }
+    }*/
+
+    while (cells_calc < cells_n)
+    {
+        for(k=0;k<n;k++) {
+            //mutex_lock
+            result[i][j]=result[i][j]+(matrixA[i][k]*matrixB[k][j]);
+            //mutex_unlock
+        }
+        cells_calc++;
+        if (j == n - 1)
+        {
+            i++;
+            j = 0;
+        } else {
+            j++;
+        }
     }
+    
 
     clock_gettime(CLOCK_MONOTONIC, &finish);
     elapsed_std = (finish.tv_sec - start.tv_sec);
