@@ -88,7 +88,7 @@ void * strassensMultRec(float ** matrixA, float** matrixB,int n,float** finalRes
         //p1
         float ** p1 = createZeroMatrix(n/2);
         args[0].matrixA = a11;
-        args[0].matrixB = strassensMultRec(addMatrix(a11,a12,n/2),b22,n/2);
+        args[0].matrixB = addMatrix(a11,a12,n/2);
         args[0].n = n/2;
         args[0].result = p1;
         //p2
@@ -193,11 +193,11 @@ void * strassensMultRec(float ** matrixA, float** matrixB,int n,float** finalRes
     finalResult = result;
 }
 
-void executeThread() {
-    allArgs = args -> args; // Array amb estructures Ex: [str1, str2, str3, ... , strN]
-
-
-
+void * executeThread(PtrStrassensArgs * args) {
+    for (int i = 0; i < lengt(args); i++)
+    {
+        strassensMultRec(args[i]->matrixA, args[i]->matrixB, args[i]->n, args[i]->result);
+    }
 }
 
 /*

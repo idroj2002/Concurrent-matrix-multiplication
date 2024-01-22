@@ -32,7 +32,7 @@ void * concurrent_standardMultiplication_ikj(float ** matrixA,float ** matrixB,i
     int i,k,j,spare,last_i = 0,last_j = 0;
     struct timespec start, finish;
     pthread_t threads[t];
-    ThreadArgs args[t];
+    StandardArgs args[t];
     pthread_mutex_init(&mutex, NULL);
     result = (float**)malloc(n*sizeof(float *));
     for(i;i<n;i++){
@@ -115,7 +115,7 @@ float ** standardMultiplication_ijk(float ** matrixA,float ** matrixB,int n)
 /*
 * Standard ikj Matrix multiplication with O(n^3) time complexity.
 */
-void * standardMultiplication_ikj(PtrArgs args)
+void * standardMultiplication_ikj(PtrStandardArgs args)
 {
     float ** matrixA = args -> matrixA;
     float ** matrixB = args -> matrixB;
