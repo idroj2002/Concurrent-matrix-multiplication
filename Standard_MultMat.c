@@ -10,7 +10,8 @@
 #include "Errors.h"
 
 double elapsed_std;
-static float ** result;
+
+float ** result;
 
 
 /*
@@ -27,9 +28,23 @@ float ** standardMultiplication(float ** matrixA,float ** matrixB,int n,int t)
 */
 float ** concurrent_standardMultiplication_ikj(float ** matrixA,float ** matrixB,int n,int t)
 {
-    int i,k,spare;
+    int i,k,j,spare,last_i = 0,last_j = 0;
     pthread_t threads[t];
     ThreadArgs args[t];
+
+    clock_gettime(CLOCK_MONOTONIC, &start);
+
+    result = (float**)malloc(n*sizeof(float *));
+
+    for(i;i<n;i++){
+        result[i]=(float*)malloc(n*sizeof(float));
+        memset(result[i],0,n*sizeof(float));
+        for(k=0;k<n;k++) {
+            for(j=0;j<n;j++){
+                result[i][j]=result[i][j]+(matrixA[i][k]*matrixB[k][j]);
+            }
+        }
+    }
 
     k = (n*n / t);
     spare = n*n - k*t;
@@ -39,6 +54,21 @@ float ** concurrent_standardMultiplication_ikj(float ** matrixA,float ** matrixB
         args[i].matrixA = matrixA;
         args[i].matrixB = matrixB;
         args[i].n = n;
+        args[i].i = last_i;
+        args[i].j = last_j;
+        if (spare > 0) {
+            spare--;
+            args[i].cells_n = k + 1;
+        } else {
+            args[i].cells_n = k;
+        }
+        
+        // Update last position
+        last_i += args[i].cells_n;
+        while(last_i >= n) {
+            last_i = 0;
+            last_j++;
+        }
 
         if (pthread_create(&threads[i], NULL, standardMultiplication_ikj, &(args[i])) != 0) {
             Error("[Standard]: pthread creation error\n\n");
@@ -91,21 +121,6 @@ float ** standardMultiplication_ikj(PtrArgs args)
     //int i,j,k;
     int k,cells_calc;
 
-    clock_gettime(CLOCK_MONOTONIC, &start);
-
-    //result = (float**)malloc(n*sizeof(float *));
-
-
-    /*for(i;i<n;i++){
-        result[i]=(float*)malloc(n*sizeof(float));
-        memset(result[i],0,n*sizeof(float));
-        for(k=0;k<n;k++) {
-            for(j=0;j<n;j++){
-                result[i][j]=result[i][j]+(matrixA[i][k]*matrixB[k][j]);
-            }
-        }
-    }*/
-
     while (cells_calc < cells_n)
     {
         for(k=0;k<n;k++) {
@@ -123,10 +138,7 @@ float ** standardMultiplication_ikj(PtrArgs args)
         }
     }
     
-
-    clock_gettime(CLOCK_MONOTONIC, &finish);
-    elapsed_std = (finish.tv_sec - start.tv_sec);
-    elapsed_std += (finish.tv_nsec - start.tv_nsec) / 1000000000.0;
+apsed_std += (finish.tv_nsec - start.tv_nsec) / 1000000000.0;
 
     return result;
 }
