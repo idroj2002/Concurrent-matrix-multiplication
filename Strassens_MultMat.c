@@ -64,6 +64,7 @@ void * strassensMultRec(float ** matrixA, float** matrixB,int n,float** finalRes
         ThreadArgs args[currentAvailableThreads];
 
         //Divide the matrix
+        args[0];
         float ** a11 = divide(matrixA, n, 0, 0);
         float ** a12 = divide(matrixA, n, 0, (n/2));
         float ** a21 = divide(matrixA, n, (n/2), 0);
@@ -74,7 +75,7 @@ void * strassensMultRec(float ** matrixA, float** matrixB,int n,float** finalRes
         float ** b22 = divide(matrixB, n, n/2, n/2);
 
         //Recursive call for Divide and Conquer
-        float** p1 = strassensMultRec(a11,subMatrix(b12,b22,n/2),n/2);
+        float** p1 = strassensMultRec(strX/*a11,subMatrix(b12,b22,n/2),n/2*/);
         float** p2 = strassensMultRec(addMatrix(a11,a12,n/2),b22,n/2);
         float** p3 = strassensMultRec(addMatrix(a21,a22,n/2),b11,n/2);
         float** p4 = strassensMultRec(a22,subMatrix(b21,b11,n/2),n/2);
@@ -106,6 +107,13 @@ void * strassensMultRec(float ** matrixA, float** matrixB,int n,float** finalRes
     }
 
     finalResult = result;
+}
+
+void executeThread(PtrArgs args) {
+    allArgs = args -> args; // Array amb estructures Ex: [str1, str2, str3, ... , strN]
+
+
+
 }
 
 /*

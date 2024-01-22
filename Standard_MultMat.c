@@ -42,22 +42,6 @@ void * concurrent_standardMultiplication_ikj(float ** matrixA,float ** matrixB,i
 
     clock_gettime(CLOCK_MONOTONIC, &start);
 
-<<<<<<< HEAD
-    result = (float**)malloc(n*sizeof(float *));
-
-    for(i;i<n;i++){
-        result[i]=(float*)malloc(n*sizeof(float));
-        memset(result[i],0,n*sizeof(float));
-        for(k=0;k<n;k++) {
-            for(j=0;j<n;j++){
-                result[i][j]=result[i][j]+(matrixA[i][k]*matrixB[k][j]);
-            }
-        }
-    }
-
-    //Calculate cells per thread
-=======
->>>>>>> 2fe58e851df2e7c8495d9afd21f843c82f1755ba
     k = (n*n / t);
     spare = n*n - k*t;
 
