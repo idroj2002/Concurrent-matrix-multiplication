@@ -76,7 +76,7 @@ float** strassensMultRec(float ** matrixA, float** matrixB,int n){
     else {
         //This is the terminating condition for recurssion.
         //result[0][0]=matrixA[0][0]*matrixB[0][0];
-        result = standardMultiplication(matrixA,matrixB, n);
+        result = standardMultiplication(matrixA,matrixB, n, 1);
     }
     return result;
 }
