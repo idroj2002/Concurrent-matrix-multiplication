@@ -200,7 +200,7 @@ void * strassensMultRec(float ** matrixA, float** matrixB,int n,float** finalRes
     }
 }
 
-void * executeThread(PtrStrassensArgs args[]) {
+void * executeThread(PtrStrassensArgs * args) {
     int length;
     length = sizeof(args) / sizeof(args[0]);
     for (int i = 0; i < length; i++)
