@@ -190,7 +190,13 @@ void * strassensMultRec(float ** matrixA, float** matrixB,int n,float** finalRes
     else {
         //This is the terminating condition for recurssion.
         //result[0][0]=matrixA[0][0]*matrixB[0][0];
-        finalResult = standardMultiplication(matrixA,matrixB, n, 1);
+        //finalResult = standardMultiplication(matrixA,matrixB, n, 1);
+        float ** result = standardMultiplication(matrixA,matrixB, n, 1);
+        for (int i = 0; i < n; ++i) {
+            for (int j = 0; j < n; ++j) {
+                finalResult[i][j] = result[i][j];
+            }
+        }
     }
 }
 
