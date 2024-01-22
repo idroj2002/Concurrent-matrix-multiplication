@@ -11,6 +11,7 @@
 
 double elapsed_std;
 static float ** result;
+pthread_mutex_t mutex;
 
 
 /*
@@ -30,6 +31,12 @@ float ** concurrent_standardMultiplication_ikj(float ** matrixA,float ** matrixB
     int i,k,spare;
     pthread_t threads[t];
     ThreadArgs args[t];
+    pthread_mutex_init(&mutex, NULL);
+    result = (float**)malloc(n*sizeof(float *));
+    for(i;i<n;i++){
+        result[i]=(float*)malloc(n*sizeof(float));
+        memset(result[i],0,n*sizeof(float));
+    }
 
     k = (n*n / t);
     spare = n*n - k*t;
@@ -94,8 +101,6 @@ float ** standardMultiplication_ikj(PtrArgs args)
     clock_gettime(CLOCK_MONOTONIC, &start);
 
     //result = (float**)malloc(n*sizeof(float *));
-
-
     /*for(i;i<n;i++){
         result[i]=(float*)malloc(n*sizeof(float));
         memset(result[i],0,n*sizeof(float));
@@ -109,9 +114,9 @@ float ** standardMultiplication_ikj(PtrArgs args)
     while (cells_calc < cells_n)
     {
         for(k=0;k<n;k++) {
-            //mutex_lock
+            pthread_mutex_lock(&mutex);
             result[i][j]=result[i][j]+(matrixA[i][k]*matrixB[k][j]);
-            //mutex_unlock
+            pthread_mutex_unlock(&mutex);
         }
         cells_calc++;
         if (j == n - 1)
@@ -123,7 +128,6 @@ float ** standardMultiplication_ikj(PtrArgs args)
         }
     }
     
-
     clock_gettime(CLOCK_MONOTONIC, &finish);
     elapsed_std = (finish.tv_sec - start.tv_sec);
     elapsed_std += (finish.tv_nsec - start.tv_nsec) / 1000000000.0;
