@@ -24,7 +24,7 @@ float** divide(float ** matrixA,int n, int row,int col);
 float** addMatrix(float**,float**,int);
 float** subMatrix(float**,float**,int);
 void compose(float**,float**,int,int,int);
-void * executeThread(PtrStrassensArgs * args)
+void * executeThread(PtrStrassensArgs * args);
 
 
 #endif //MULTMAT_SEC3_STRASSENS_MULTMAT_H

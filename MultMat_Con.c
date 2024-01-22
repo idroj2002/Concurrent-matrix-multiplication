@@ -127,6 +127,7 @@ int main(int argc, char ** argv)
 
     float ** strassensRes = strassensMultiplication(matrixA,matrixB,n,threads);
     if (n<10) {
+        
         print("Strassen's Multiplication Result:\n");
         printMatrix(strassensRes, n);
     }

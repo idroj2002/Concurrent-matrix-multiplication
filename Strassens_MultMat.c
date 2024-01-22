@@ -2,11 +2,12 @@
 // Created by Fernando Cores Prado on 4/12/23.
 //
 
+#include <stdlib.h>
 #include "Strassens_MultMat.h"
 #include <time.h>
-#include <stdlib.h>
 #include <pthread.h>
 #include "Matrix.h"
+#include "Errors.h"
 
 double elapsed_str;
 int Dim2StopRecursivity = 10;
@@ -27,7 +28,7 @@ float ** strassensMultiplication(float ** matrixA, float** matrixB,int n,int t)
     if (n>32)
         Dim2StopRecursivity = n/16;
 
-    strassenMultRec(matrixA,matrixB,n,result);
+    strassensMultRec(matrixA,matrixB,n,result);
 
     clock_gettime(CLOCK_MONOTONIC, &finish);
     elapsed_str = (finish.tv_sec - start.tv_sec);
@@ -193,8 +194,10 @@ void * strassensMultRec(float ** matrixA, float** matrixB,int n,float** finalRes
     finalResult = result;
 }
 
-void * executeThread(PtrStrassensArgs * args) {
-    for (int i = 0; i < lengt(args); i++)
+void * executeThread(PtrStrassensArgs args[]) {
+    int length;
+    length = sizeof(args) / sizeof(args[0]);
+    for (int i = 0; i < length; i++)
     {
         strassensMultRec(args[i]->matrixA, args[i]->matrixB, args[i]->n, args[i]->result);
     }
