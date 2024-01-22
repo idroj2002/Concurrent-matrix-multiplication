@@ -128,6 +128,7 @@ void * standardMultiplication_ikj(PtrStandardArgs args)
     {
         for(k=0;k<n;k++) {
             pthread_mutex_lock(&mutex);
+            printf("i: %d, j: %d, k: %d", i, j ,k);
             result[i][j]=result[i][j]+(matrixA[i][k]*matrixB[k][j]);
             pthread_mutex_unlock(&mutex);
         }
