@@ -5,6 +5,7 @@
 #include "Strassens_MultMat.h"
 #include <time.h>
 #include <stdlib.h>
+#include <pthread.h>
 #include "Matrix.h"
 
 double elapsed_str;
@@ -42,8 +43,8 @@ void * strassensMultRec(float ** matrixA, float** matrixB,int n,float** finalRes
     float ** result = createZeroMatrix(n);
     if(n>Dim2StopRecursivity) {
         //Consult available threads
-        int k, spare;
-        int currentAvailableThreads = 0;
+        int i, j, k, spare;
+        int currentAvailableThreads = 0, assignedArgs = 0;
         pthread_mutex_lock(&mutex);
         if (availableThreads > 6) {
             currentAvailableThreads = 6;
@@ -61,10 +62,9 @@ void * strassensMultRec(float ** matrixA, float** matrixB,int n,float** finalRes
 
         //Create threads
         pthread_t threads[currentAvailableThreads];
-        ThreadArgs args[currentAvailableThreads];
+        StrassensArgs args[currentAvailableThreads];
 
         //Divide the matrix
-        args[0];
         float ** a11 = divide(matrixA, n, 0, 0);
         float ** a12 = divide(matrixA, n, 0, (n/2));
         float ** a21 = divide(matrixA, n, (n/2), 0);
@@ -75,15 +75,99 @@ void * strassensMultRec(float ** matrixA, float** matrixB,int n,float** finalRes
         float ** b22 = divide(matrixB, n, n/2, n/2);
 
         //Recursive call for Divide and Conquer
-        float** p1 = strassensMultRec(strX/*a11,subMatrix(b12,b22,n/2),n/2*/);
+
+        /*
+        float** p1 = strassensMultRec(a11,subMatrix(b12,b22,n/2),n/2);
         float** p2 = strassensMultRec(addMatrix(a11,a12,n/2),b22,n/2);
         float** p3 = strassensMultRec(addMatrix(a21,a22,n/2),b11,n/2);
         float** p4 = strassensMultRec(a22,subMatrix(b21,b11,n/2),n/2);
         float** p5 = strassensMultRec(addMatrix(a11,a22,n/2),addMatrix(b11,b22,n/2),n/2);
         float** p6 = strassensMultRec(subMatrix(a12,a22,n/2),addMatrix(b21,b22,n/2),n/2);
         float** p7 = strassensMultRec(subMatrix(a21,a11,n/2),addMatrix(b11,b12,n/2),n/2);
-        free(a11); free(a12); free(a21); free(a22);
+        */
+        //p1
+        float ** p1 = createZeroMatrix(n/2);
+        args[0].matrixA = a11;
+        args[0].matrixB = strassensMultRec(addMatrix(a11,a12,n/2),b22,n/2);
+        args[0].n = n/2;
+        args[0].result = p1;
+        //p2
+        float ** p2 = createZeroMatrix(n/2);
+        args[1].matrixA = addMatrix(a11,a12,n/2);
+        args[1].matrixB = b22;
+        args[1].n = n/2;
+        args[1].result = p2;
+        //p3
+        float ** p3 = createZeroMatrix(n/2);
+        args[2].matrixA = addMatrix(a21,a22,n/2);
+        args[2].matrixB = b11;
+        args[2].n = n/2;
+        args[2].result = p3;
+        //p4
+        float ** p4 = createZeroMatrix(n/2);
+        args[3].matrixA = a22;
+        args[3].matrixB = subMatrix(b21,b11,n/2);
+        args[3].n = n/2;
+        args[3].result = p4;
+        //p5
+        float ** p5 = createZeroMatrix(n/2);
+        args[4].matrixA = addMatrix(a11,a22,n/2);
+        args[4].matrixB = addMatrix(b11,b22,n/2);
+        args[4].n = n/2;
+        args[4].result = p5;
+        //p6
+        float ** p6 = createZeroMatrix(n/2);
+        args[5].matrixA = subMatrix(a12,a22,n/2);
+        args[5].matrixB = addMatrix(b21,b22,n/2);
+        args[5].n = n/2;
+        args[5].result = p6;
+        //p7
+        float ** p7 = createZeroMatrix(n/2);
+        args[6].matrixA = addMatrix(b21,b22,n/2);
+        args[6].matrixB = addMatrix(b11,b12,n/2);
+        args[6].n = n/2;
+        args[6].result = p7;
+        
+        free(a11); free(a12); free(a21); free(a22); 
         free(b11); free(b12); free(b21); free(b22);
+
+        // Determine operations of this thread
+        int size = k;
+        if (spare > 0) {
+            spare--;
+            size++;
+        }
+        StrassensArgs argsList[size];
+        for(j = assignedArgs; j < size + assignedArgs; j++) {
+            argsList[j] = args[j + assignedArgs];
+        }
+        assignedArgs += size;
+
+        // Determine operations of children threads
+        for(i = 0; i < currentAvailableThreads; i++) {
+            int size = k;
+            if (spare > 0) {
+                spare--;
+                size++;
+            }
+            StrassensArgs argsList[size];
+            for(j = assignedArgs; j < size + assignedArgs; j++) {
+                argsList[j] = args[j + assignedArgs];
+            }
+            assignedArgs += size;
+
+            // Create threads
+            if (pthread_create(&threads[i], NULL, (void *(*) (void*)) executeThread, argsList) != 0) {
+                Error("[Strassens Mult]: pthread creation error\n\n");
+            }
+        }
+
+        // Join
+        for (i = 0; i < currentAvailableThreads; i++)
+        {
+            pthread_join(threads[i], (void **) NULL);
+        }
+        pthread_mutex_destroy(&mutex);
 
         float** c11 = addMatrix(subMatrix(addMatrix(p5,p4,n/2),p2,n/2),p6,n/2);
         float** c12 = addMatrix(p1,p2,n/2);
@@ -109,7 +193,7 @@ void * strassensMultRec(float ** matrixA, float** matrixB,int n,float** finalRes
     finalResult = result;
 }
 
-void executeThread(PtrArgs args) {
+void executeThread() {
     allArgs = args -> args; // Array amb estructures Ex: [str1, str2, str3, ... , strN]
 
 
