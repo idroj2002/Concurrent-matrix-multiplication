@@ -166,6 +166,9 @@ void * strassensMultRec(float ** matrixA, float** matrixB,int n,float** finalRes
         for (i = 0; i < currentAvailableThreads; i++)
         {
             pthread_join(threads[i], (void **) NULL);
+            pthread_mutex_lock(&mutex);
+            availableThreads++;
+            pthread_mutex_unlock(&mutex);
         }
         pthread_mutex_destroy(&mutex);
 
