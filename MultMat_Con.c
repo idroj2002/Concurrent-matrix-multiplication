@@ -12,7 +12,7 @@
 #include "Errors.c"
 
 // Constants
-#define DEBUG 0
+#define DEBUG 1
 char *usage_msg = "Usage: Strassen_Sec <MatrixA_File> <MatrixB_File> <ResultMatrix_File>\n       or\n       Strassen_Sec <Matrix_size> <Matrix_RootFolder>";
 char *input_folder = "Input";
 char *results_folder = "Results";
@@ -68,7 +68,15 @@ int main(int argc, char ** argv)
     {
         int n1, n2;
         double int_part;
+
+        sprintf(debug_msg,"[Main] Opening %s\n",argv[1]);
+        printMessage(debug_msg,COLOR_MAGENTA);
+
         openMatrix(argv[1], &matrixA,&n1);
+
+        sprintf(debug_msg,"[Main] Opening %s\n",argv[2]);
+        printMessage(debug_msg,COLOR_MAGENTA);
+        
         openMatrix(argv[2], &matrixB,&n2);
         if (n1!=n2)
             Error("[Main]: Error input matrices have differente dimensions!");

@@ -2,4 +2,6 @@
 .idea/
 cmake-build-debug/
 .vscode/
-MultMat_Sec.exe
+MultMat_Con.exe
+Input/
+Results/

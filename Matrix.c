@@ -6,6 +6,8 @@
 #include "Matrix.h"
 #include "Errors.h"
 
+char debug_msg [256];
+
 
 /*
 * Create the matrix with random floating point numbers betweeen -5 to 5
@@ -83,6 +85,8 @@ void openMatrix(char *inputFile, float *** matrix,int *n)
     FILE *fileMatrix;
 
     // Create output file
+    sprintf(debug_msg,"[Matrix] Opening %s\n",inputFile);
+    printMessage(debug_msg,COLOR_MAGENTA);
     fileMatrix = fopen(inputFile, "r");
     if (fileMatrix==NULL)
         Error("[openMatrix] Error opening input matrix!");
