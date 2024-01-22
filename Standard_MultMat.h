@@ -1,3 +1,11 @@
+/* ---------------------------------------------------------------
+Práctica 4.
+Código fuente: Standard_MultMat.h
+Grau Informàtica
+39394122K Jord Arenas Romero.
+48281063S Sergi Barón Pascual.
+--------------------------------------------------------------- */
+
 //
 // Created by Fernando Cores Prado on 4/12/23.
 //

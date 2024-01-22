@@ -1,6 +1,14 @@
+/* ---------------------------------------------------------------
+Práctica 4.
+Código fuente: MultMat_Conc.c
+Grau Informàtica
+39394122K Jord Arenas Romero.
+48281063S Sergi Barón Pascual.
+--------------------------------------------------------------- */
+
 //
 // Created by Fernando Cores Prado on 4/12/23.
-//
+//  
 
 #include <stdio.h>
 #include <stdlib.h>
